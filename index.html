@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style>
+        body {
+            background-color: #ffccf2;
+        }
+
+        .app-title {
+            text-align: center;
+            font-size: 40px;
+        }
+
+        .player-inputs {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .player-inputs input {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #000;
+        }
+
+        .start-button {
+            background-color: #cc0099;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .current-player {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .board {
+            width: fit-content;
+            margin: 50px auto;
+            background-color: #cc0099;
+            border: 1px solid #000;
+            align-items: center;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .row {
+            display: flex;
+        }
+
+        .box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fff;
+            height: 100px;
+            width: 100px;
+            margin: 5px;
+            border: 1px solid #000;
+        }
+
+        .box:hover {
+            transition: 0.3s;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .reset-button,
+        .restart-button {
+            background-color: #cc0099;
+            height: 40px;
+            width: 150px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            border: 2px solid #000;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="app-title">Tic Tac Toe</h1>
+
+    <div class="player-inputs">
+        <input type="text" id="playerX" placeholder="Enter Player X Name" />
+        <input type="text" id="playerO" placeholder="Enter Player O Name" />
+        <button class="start-button" onclick="startGame()">Start Game</button>
+    </div>
+
+    <p class="current-player">Current Player: <span id="current-player-name"></span></p>
+
+    <div class="board">
+        <div class="row">
+            <div class="box" onclick="selectBox(0)">0</div>
+            <div class="box" onclick="selectBox(1)">1</div>
+            <div class="box" onclick="selectBox(2)">2</div>
+        </div>
+        <div class="row">
+            <div class="box" onclick="selectBox(3)">3</div>
+            <div class="box" onclick="selectBox(4)">4</div>
+            <div class="box" onclick="selectBox(5)">5</div>
+        </div>
+        <div class="row">
+            <div class="box" onclick="selectBox(6)">6</div>
+            <div class="box" onclick="selectBox(7)">7</div>
+            <div class="box" onclick="selectBox(8)">8</div>
+        </div>
+    </div>
+
+    <div class="buttons-container">
+        <button class="reset-button" onclick="resetBoard()">Reset Game</button>
+        <button class="restart-button" onclick="location.reload()">Restart Game</button>
+    </div>
+
+    <script>
+        const board = [-1, -1, -1, -1, -1, -1, -1, -1, -1];
+        let currentPlayer = "X";
+        let playerXName = "";
+        let playerOName = "";
+
+        function startGame() {
+            const playerXInput = document.getElementById("playerX").value;
+            const playerOInput = document.getElementById("playerO").value;
+
+            if (!playerXInput || !playerOInput) {
+                alert("Both players must enter their names to start the game!");
+                return;
+            }
+
+            playerXName = playerXInput;
+            playerOName = playerOInput;
+
+            document.querySelector(".player-inputs").style.display = "none";
+            document.querySelector(".current-player").style.display = "block";
+            document.querySelector(".board").style.display = "block";
+            document.querySelector(".reset-button").style.display = "block";
+            document.querySelector(".restart-button").style.display = "block";
+
+            updateCurrentPlayerDisplay();
+        }
+
+        function renderBoard() {
+            const allBoxes = document.querySelectorAll('.box');
+
+            allBoxes.forEach((boxElement, i) => {
+                if (board[i] == "O") {
+                    boxElement.innerHTML = '<img src="./img/player1.png" height="60px"/>';
+                } else if (board[i] == "X") {
+                    boxElement.innerHTML = '<img src="./img/player2.png" height="60px"/>';
+                } else {
+                    boxElement.innerHTML = "";
+                }
+            });
+        }
+        renderBoard();
+
+        function selectBox(boxNumber) {
+            if (board[boxNumber] != -1) {
+                alert('Invalid Move');
+                return;
+            }
+
+            board[boxNumber] = currentPlayer;
+            renderBoard();
+
+            if (currentPlayer === "X") {
+                currentPlayer = "O";
+            } else {
+                currentPlayer = "X";
+            }
+
+            updateCurrentPlayerDisplay();
+            checkForWinner();
+        }
+
+        function updateCurrentPlayerDisplay() {
+            const currentPlayerElement = document.getElementById("current-player-name");
+            currentPlayerElement.innerText = currentPlayer === "X" ? playerXName : playerOName;
+        }
+
+        function resetBoard() {
+            board.fill(-1);
+            renderBoard();
+            currentPlayer = "X";
+            updateCurrentPlayerDisplay();
+        }
+
+        function isPlayerPresent(places, player) {
+            const [a, b, c] = places;
+            return board[a] == player && board[b] == player && board[c] == player;
+        }
+
+        function checkForWinner() {
+            const winningCombinations = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6]
+            ];
+
+            for (const combination of winningCombinations) {
+                if (isPlayerPresent(combination, "X")) {
+                    alert(`${playerXName} wins!`);
+                    return;
+                }
+                if (isPlayerPresent(combination, "O")) {
+                    alert(`${playerOName} wins!`);
+                    return;
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
